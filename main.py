@@ -42,12 +42,12 @@ def prepare_data():
 
 def fit_classifier():
     input_shape = x_train.shape[1:]
-    print(1)
+    
     classifier = create_classifier(classifier_name, input_shape, nb_classes,
                                    output_directory)
-    print(2)
+    
     classifier.fit(x_train, y_train, x_test, y_test, y_true)
-    print(3)
+    
 
 
 def create_classifier(classifier_name, input_shape, nb_classes, output_directory,
@@ -84,19 +84,19 @@ def get_xp_val(xp):
 root_dir = r'D:/Coding/GitHub/InceptionTime'
 xps = ['use_bottleneck', 'use_residual', 'nb_filters', 'depth',
        'kernel_size', 'batch_size']
-print(11)
+
 if sys.argv[1] == 'InceptionTime':
     # run nb_iter_ iterations of Inception on the whole TSC archive
     classifier_name = 'inception'
     archive_name = ARCHIVE_NAMES[0]
     nb_iter_ = 5
-    print(12)
+    
 
     datasets_dict = read_all_datasets(root_dir, archive_name)
 
     for iter in range(nb_iter_):
         print('\t\titer', iter)
-        print(13)
+        
         trr = ''
         if iter != 0:
             trr = '_itr_' + str(iter)
@@ -105,17 +105,17 @@ if sys.argv[1] == 'InceptionTime':
 
         for dataset_name in utils.constants.dataset_names_for_archive[archive_name]:
             print('\t\t\tdataset_name: ', dataset_name)
-            print(14)
+            
             x_train, y_train, x_test, y_test, y_true, nb_classes, y_true_train, enc = prepare_data()
-            print(15)
+            
             output_directory = tmp_output_directory + dataset_name + '/'
 
             temp_output_directory = create_directory(output_directory)
-            print(16)
+            
             # if temp_output_directory is None:
             #     print('Already_done', tmp_output_directory, dataset_name)
             #     continue
-            print(17)
+            
             fit_classifier()
 
             print('\t\t\t\tDONE')

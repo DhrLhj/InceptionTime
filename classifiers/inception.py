@@ -113,14 +113,14 @@ class Classifier_INCEPTION:
             print('error no gpu')
             exit()
         # x_val and y_val are only used to monitor the test loss and NOT for training
-        print(4)
+        
         if self.batch_size is None:
             mini_batch_size = int(min(x_train.shape[0] / 10, 16))
         else:
             mini_batch_size = self.batch_size
 
         start_time = time.time()
-        print(start_time)
+        
 
         if plot_test_acc:
 
@@ -132,7 +132,7 @@ class Classifier_INCEPTION:
                                   verbose=self.verbose, callbacks=self.callbacks)
 
         duration = time.time() - start_time
-        print(duration)
+        
 
         self.model.save(self.output_directory + 'last_model.hdf5')
 
