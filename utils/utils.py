@@ -22,6 +22,8 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.preprocessing import LabelEncoder
 
+from sktime.utils import load_data
+
 
 def check_if_file_exits(file_name):
     return os.path.exists(file_name)
@@ -31,8 +33,48 @@ def readucr(filename, delimiter=','):
     data = np.loadtxt(filename, delimiter=delimiter)
     Y = data[:, 0]
     X = data[:, 1:]
+    # print(X)
+    # print(Y)
     return X, Y
 
+#########读取UEA ts#########
+def interpolate_missing(y):
+    """
+    Replaces NaN values in pd.Series `y` using linear interpolation
+    """
+    if y.isna().any():
+        y = y.interpolate(method='linear', limit_direction='both')
+    return y
+
+def subsample(y, limit=256, factor=2):
+    """
+    If a given Series is longer than `limit`, returns subsampled sequence by the specified integer factor
+    """
+    if len(y) > limit:
+        return y[::factor].reset_index(drop=True)
+    return y
+
+
+def readuea(filename, delimiter=','):
+    data, labels = load_data.load_from_tsfile_to_dataframe(filename, return_separate_X_and_y=True,
+                                                             replace_missing_vals_with='NaN')
+
+    # Replace NaN values
+    grp = data.groupby(by=data.index)
+    data = grp.transform(interpolate_missing)
+
+    # df转numpy
+    data = np.array([np.array([data.values[iidx, vidx].to_numpy(dtype=np.float) \
+                                for vidx in range(data.values.shape[1])]) \
+                                for iidx in range(data.values.shape[0])]) 
+    
+    label2idx = {label: idx for idx, label in enumerate(np.unique(labels))}
+    labels = np.array([label2idx[label] for label in labels])
+
+    # print(data)
+    # print(labels)
+
+    return data, labels
 
 def readsits(filename, delimiter=','):
     data = np.loadtxt(filename, delimiter=delimiter)
@@ -53,12 +95,23 @@ def create_directory(directory_path):
         return directory_path
 
 
+# def read_dataset(root_dir, archive_name, dataset_name):
+#     datasets_dict = {}
+
+#     file_name = root_dir + '/archives/' + archive_name + '/' + dataset_name + '/' + dataset_name
+#     x_train, y_train = readucr(file_name + '_TRAIN')
+#     x_test, y_test = readucr(file_name + '_TEST')
+#     datasets_dict[dataset_name] = (x_train.copy(), y_train.copy(), x_test.copy(),
+#                                    y_test.copy())
+
+#     return datasets_dict
+
 def read_dataset(root_dir, archive_name, dataset_name):
     datasets_dict = {}
 
     file_name = root_dir + '/archives/' + archive_name + '/' + dataset_name + '/' + dataset_name
-    x_train, y_train = readucr(file_name + '_TRAIN')
-    x_test, y_test = readucr(file_name + '_TEST')
+    x_train, y_train = readuea(file_name + '_TRAIN.ts')
+    x_test, y_test = readuea(file_name + '_TEST.ts')
     datasets_dict[dataset_name] = (x_train.copy(), y_train.copy(), x_test.copy(),
                                    y_test.copy())
 
@@ -70,12 +123,29 @@ def read_all_datasets(root_dir, archive_name):
 
     dataset_names_to_sort = []
 
+    # if archive_name == 'TSC':
+    #     for dataset_name in DATASET_NAMES:
+    #         root_dir_dataset = root_dir + '/archives/' + archive_name + '/' + dataset_name + '/'
+    #         file_name = root_dir_dataset + dataset_name
+    #         x_train, y_train = readucr(file_name + '_TRAIN')
+    #         x_test, y_test = readucr(file_name + '_TEST')
+
+    #         datasets_dict[dataset_name] = (x_train.copy(), y_train.copy(), x_test.copy(),
+    #                                        y_test.copy())
+
+    #         dataset_names_to_sort.append((dataset_name, len(x_train)))
+
+    #     dataset_names_to_sort.sort(key=operator.itemgetter(1))
+
+    #     for i in range(len(DATASET_NAMES)):
+    #         DATASET_NAMES[i] = dataset_names_to_sort[i][0]
+
     if archive_name == 'TSC':
         for dataset_name in DATASET_NAMES:
             root_dir_dataset = root_dir + '/archives/' + archive_name + '/' + dataset_name + '/'
             file_name = root_dir_dataset + dataset_name
-            x_train, y_train = readucr(file_name + '_TRAIN')
-            x_test, y_test = readucr(file_name + '_TEST')
+            x_train, y_train = readuea(file_name + '_TRAIN.ts')
+            x_test, y_test = readuea(file_name + '_TEST.ts')
 
             datasets_dict[dataset_name] = (x_train.copy(), y_train.copy(), x_test.copy(),
                                            y_test.copy())

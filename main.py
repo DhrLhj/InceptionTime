@@ -45,7 +45,8 @@ def fit_classifier():
     
     classifier = create_classifier(classifier_name, input_shape, nb_classes,
                                    output_directory)
-    
+    # print('typex',type(x_train))
+    # print('typey',type(y_train))
     classifier.fit(x_train, y_train, x_test, y_test, y_true)
     
 
@@ -81,7 +82,7 @@ def get_xp_val(xp):
 
 
 ############################################### main
-root_dir = r'D:/Coding/GitHub/InceptionTime'
+root_dir = r'/root/data/InceptionTime'
 xps = ['use_bottleneck', 'use_residual', 'nb_filters', 'depth',
        'kernel_size', 'batch_size']
 
