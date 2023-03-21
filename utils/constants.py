@@ -17,7 +17,7 @@ UNIVARIATE_DATASET_NAMES = ['50words', 'Adiac', 'ArrowHead', 'Beef', 'BeetleFly'
                             'uWaveGestureLibrary_Z', 'wafer', 'Wine', 'WordsSynonyms', 'Worms', 'WormsTwoClass', 'yoga',
                             'SelfRegulationSCP2','FaceDetection','Handwriting','EthanolConcentration']
 
-UNIVARIATE_DATASET_NAMES = ['FaceDetection','Handwriting','EthanolConcentration']
+UNIVARIATE_DATASET_NAMES = ['EthanolConcentration']
 
 UNIVARIATE_ARCHIVE_NAMES = ['TSC', 'InlineSkateXPs', 'SITS']
 UNIVARIATE_ARCHIVE_NAMES = ['TSC']

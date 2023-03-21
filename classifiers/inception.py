@@ -27,6 +27,8 @@ class Classifier_INCEPTION:
         self.nb_epochs = nb_epochs
 
         if build == True:
+            # input_shape表示（输入时序数据的长度，输入数据的通道数），univariate的channel为1
+            # nb_classes表示几分类问题
             self.model = self.build_model(input_shape, nb_classes)
             if (verbose == True):
                 self.model.summary()
@@ -34,13 +36,17 @@ class Classifier_INCEPTION:
             self.model.save_weights(self.output_directory + 'model_init.hdf5')
 
     def _inception_module(self, input_tensor, stride=1, activation='linear'):
-
+        # 输入（None，3，1751）
+        # print('input',input_tensor.shape)
         if self.use_bottleneck and int(input_tensor.shape[-1]) > 1:
             input_inception = keras.layers.Conv1D(filters=self.bottleneck_size, kernel_size=1,
                                                   padding='same', activation=activation, use_bias=False)(input_tensor)
         else:
             input_inception = input_tensor
-
+        # 输出变成了（3，32），在输入张量(input_tensor)的形状中，第一个维度(None)表示输入数据的数量未知，第二个维度(3)表示每个输入数据的通道数，而第三个维度(1751)表示每个通道的时间步数。
+        # 因此，使用bottleneck设计的Conv1D层将时间步的特征数从1751降低到32，并保留通道数为3。
+        # 输出张量(input_inception)的形状为(None, 3, 32)，其中32表示每个时间步的特征数被降低到了32，3表示每个输入数据的通道数被保留下来，而None表示输入数据的数量未知。
+        # print('inception',input_inception.shape)
         # kernel_size_s = [3, 5, 8, 11, 17]
         kernel_size_s = [self.kernel_size // (2 ** i) for i in range(3)]
 
@@ -50,6 +56,7 @@ class Classifier_INCEPTION:
             conv_list.append(keras.layers.Conv1D(filters=self.nb_filters, kernel_size=kernel_size_s[i],
                                                  strides=stride, padding='same', activation=activation, use_bias=False)(
                 input_inception))
+            # print('conv',conv_list[i].shape)
 
         max_pool_1 = keras.layers.MaxPool1D(pool_size=3, strides=stride, padding='same')(input_tensor)
 
@@ -59,6 +66,7 @@ class Classifier_INCEPTION:
         conv_list.append(conv_6)
 
         x = keras.layers.Concatenate(axis=2)(conv_list)
+        # print('output',x.shape)
         x = keras.layers.BatchNormalization()(x)
         x = keras.layers.Activation(activation='relu')(x)
         return x
@@ -73,21 +81,25 @@ class Classifier_INCEPTION:
         return x
 
     def build_model(self, input_shape, nb_classes):
+        # input_shape表示（输入时序数据的长度，输入数据的通道数），univariate的channel为1
         input_layer = keras.layers.Input(input_shape)
-
+        # print('raw',input_layer.shape)
         x = input_layer
         input_res = input_layer
 
+        # depth默认设置为6
         for d in range(self.depth):
-
+            # print(d)
             x = self._inception_module(x)
 
+            # 当depth=2和depth=5时，分别进行残差传递
             if self.use_residual and d % 3 == 2:
                 x = self._shortcut_layer(input_res, x)
                 input_res = x
 
         gap_layer = keras.layers.GlobalAveragePooling1D()(x)
 
+        # 表达式keras.layers.Dense(nb_classes, activation='softmax')(gap_layer)表示将gap_layer张量传递给Dense()层作为输入，并应用softmax激活函数生成输出张量。
         output_layer = keras.layers.Dense(nb_classes, activation='softmax')(gap_layer)
 
         model = keras.models.Model(inputs=input_layer, outputs=output_layer)

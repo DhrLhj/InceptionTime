@@ -37,24 +37,6 @@ def readucr(filename, delimiter=','):
     # print(Y)
     return X, Y
 
-#########读取UEA ts#########
-def interpolate_missing(y):
-    """
-    Replaces NaN values in pd.Series `y` using linear interpolation
-    """
-    if y.isna().any():
-        y = y.interpolate(method='linear', limit_direction='both')
-    return y
-
-def subsample(y, limit=256, factor=2):
-    """
-    If a given Series is longer than `limit`, returns subsampled sequence by the specified integer factor
-    """
-    if len(y) > limit:
-        return y[::factor].reset_index(drop=True)
-    return y
-
-
 def readuea(filename, delimiter=','):
     data, labels = load_data.load_from_tsfile_to_dataframe(filename, return_separate_X_and_y=True,
                                                              replace_missing_vals_with='NaN')
@@ -95,6 +77,7 @@ def create_directory(directory_path):
         return directory_path
 
 
+# # UCR txt
 # def read_dataset(root_dir, archive_name, dataset_name):
 #     datasets_dict = {}
 
@@ -106,6 +89,8 @@ def create_directory(directory_path):
 
 #     return datasets_dict
 
+
+# UEA tsfile
 def read_dataset(root_dir, archive_name, dataset_name):
     datasets_dict = {}
 
@@ -123,6 +108,7 @@ def read_all_datasets(root_dir, archive_name):
 
     dataset_names_to_sort = []
 
+    # # UCR txt
     # if archive_name == 'TSC':
     #     for dataset_name in DATASET_NAMES:
     #         root_dir_dataset = root_dir + '/archives/' + archive_name + '/' + dataset_name + '/'
@@ -140,6 +126,7 @@ def read_all_datasets(root_dir, archive_name):
     #     for i in range(len(DATASET_NAMES)):
     #         DATASET_NAMES[i] = dataset_names_to_sort[i][0]
 
+    # UEA tsfile
     if archive_name == 'TSC':
         for dataset_name in DATASET_NAMES:
             print(dataset_name)
@@ -443,3 +430,20 @@ def run_length_xps(root_dir):
         np.save(new_dataset_dir + 'y_train.npy', y_train)
         np.save(new_dataset_dir + 'x_test.npy', new_x_test)
         np.save(new_dataset_dir + 'y_test.npy', y_test)
+
+# UEA readuea()
+def interpolate_missing(y):
+    """
+    Replaces NaN values in pd.Series `y` using linear interpolation
+    """
+    if y.isna().any():
+        y = y.interpolate(method='linear', limit_direction='both')
+    return y
+
+def subsample(y, limit=256, factor=2):
+    """
+    If a given Series is longer than `limit`, returns subsampled sequence by the specified integer factor
+    """
+    if len(y) > limit:
+        return y[::factor].reset_index(drop=True)
+    return y

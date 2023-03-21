@@ -17,6 +17,7 @@ def prepare_data():
     y_train = datasets_dict[dataset_name][1]
     x_test = datasets_dict[dataset_name][2]
     y_test = datasets_dict[dataset_name][3]
+    # print(x_train.shape)
 
     nb_classes = len(np.unique(np.concatenate((y_train, y_test), axis=0)))
 
