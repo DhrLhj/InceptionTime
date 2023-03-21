@@ -92,7 +92,7 @@ if sys.argv[1] == 'InceptionTime':
     archive_name = ARCHIVE_NAMES[0]
     nb_iter_ = 5
     
-
+    print(archive_name)
     datasets_dict = read_all_datasets(root_dir, archive_name)
 
     for iter in range(nb_iter_):
@@ -103,7 +103,7 @@ if sys.argv[1] == 'InceptionTime':
             trr = '_itr_' + str(iter)
 
         tmp_output_directory = root_dir + '/results/' + classifier_name + '/' + archive_name + trr + '/'
-
+        
         for dataset_name in utils.constants.dataset_names_for_archive[archive_name]:
             print('\t\t\tdataset_name: ', dataset_name)
             

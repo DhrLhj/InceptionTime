@@ -73,7 +73,7 @@ def readuea(filename, delimiter=','):
 
     # print(data)
     # print(labels)
-
+    
     return data, labels
 
 def readsits(filename, delimiter=','):
@@ -142,6 +142,7 @@ def read_all_datasets(root_dir, archive_name):
 
     if archive_name == 'TSC':
         for dataset_name in DATASET_NAMES:
+            print(dataset_name)
             root_dir_dataset = root_dir + '/archives/' + archive_name + '/' + dataset_name + '/'
             file_name = root_dir_dataset + dataset_name
             x_train, y_train = readuea(file_name + '_TRAIN.ts')
